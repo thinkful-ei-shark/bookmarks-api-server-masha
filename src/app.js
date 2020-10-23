@@ -13,15 +13,16 @@ const morganOption = (NODE_ENV === 'production')
 const app = express();
 
 app.use(morgan(morganOption));
-app.use(express.json());
 app.use(helmet());
 app.use(cors());
-app.use(errorHandler());
 
 app.get('/', (req, res) => {
   res
     .status(200)
     .json({ message: 'Hello, World!' });
 });
+
+
+app.use(errorHandler);
 
 module.exports = app;
