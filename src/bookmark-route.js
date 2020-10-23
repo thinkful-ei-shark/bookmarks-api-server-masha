@@ -2,8 +2,7 @@ const bookmarkRouter = require('express').Router();
 const parseJson = require('express').json();
 const uuid = require('uuid').v4;
 
-const testUrl = require('./test-url');
-const data = require('./data-store');
+const { data, findItem, validateUrl } = require('./data-store');
 
 // GET /
 bookmarkRouter
@@ -28,7 +27,7 @@ bookmarkRouter
         .status(400)
         .json({ message: 'Title required' });
     }
-    if (!url || !testUrl(url)) {
+    if (!url || !validateUrl(url)) {
       return res
         .status(400)
         .json({ message: 'Valid URL required' });
