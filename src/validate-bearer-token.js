@@ -11,4 +11,4 @@ module.exports = function validateBearerToken(req, res, next) {
       .json({ message: 'Unauthorized request'});
   }
   next();
-}
+};

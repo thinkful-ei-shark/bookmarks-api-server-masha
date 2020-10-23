@@ -4,4 +4,4 @@ module.exports = [{
   url: 'https://google.com',
   desc: 'Search Monster',
   rating: '4'
-}]
+}];
