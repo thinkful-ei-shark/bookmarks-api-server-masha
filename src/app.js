@@ -2,8 +2,11 @@ const express = require('express');
 const morgan = require('morgan');
 const cors = require('cors');
 const helmet = require('helmet');
+
 const errorHandler = require('./errorhandler');
 const validateBearerToken = require('./validate-bearer-token');
+const bookmarkRoute = require('./bookmark-route');
+
 const { NODE_ENV } = require('./config');
 
 const morganOption = (NODE_ENV === 'production')
@@ -24,6 +27,7 @@ app.get('/', (req, res) => {
     .json({ message: 'Hello, World!' });
 });
 
+app.use('/bookmarks', bookmarkRoute);
 
 app.use(errorHandler);
 
