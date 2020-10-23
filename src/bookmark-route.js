@@ -2,7 +2,7 @@ const bookmarkRouter = require('express').Router();
 const parseJson = require('express').json();
 const uuid = require('uuid').v4;
 
-const { data, findItem, validateUrl } = require('./data-store');
+const { data, findItem, validateUrl, deleteItem } = require('./data-store');
 
 function validateJsonRequest(req, res, next) {
   const contentType = req.headers['content-type'];
@@ -61,23 +61,23 @@ bookmarkRouter
   .patch(parseJson, validateJsonRequest, (req, res) => {
     const { id } = req.params;
     const { title, url, desc, rating } = req.body;
-    
+
     if (!(title || desc || url || rating)) {
       return res
         .status(400)
-        .json({message: 'At least one valid field required'});
+        .json({ message: 'At least one valid field required' });
     }
 
-    if (url && !validateUrl(url)){
+    if (url && !validateUrl(url)) {
       return res
         .status(400)
-        .json({message: 'URL must be valid'});
+        .json({ message: 'URL must be valid' });
     }
 
-    if (rating && !parseInt(rating)){
+    if (rating && !parseInt(rating)) {
       return res
         .status(400)
-        .json({message: 'Rating must be a number'});
+        .json({ message: 'Rating must be a number' });
     }
 
     const bookmark = findItem(id);
@@ -87,15 +87,26 @@ bookmarkRouter
         .json({ message: `Bookmark with id ${id} not found` });
     }
 
-    title && Object.assign(bookmark, {title});
-    url && Object.assign(bookmark, {url});
-    desc && Object.assign(bookmark, {desc});
-    rating && Object.assign(bookmark, {rating});
-    
+    title && Object.assign(bookmark, { title });
+    url && Object.assign(bookmark, { url });
+    desc && Object.assign(bookmark, { desc });
+    rating && Object.assign(bookmark, { rating });
+
     return res
       .status(200)
       .json(bookmark);
+  })
+  // DELETE /:id
+  .delete((req, res) => {
+    const { id } = req.params;
+    if (!deleteItem(id)) {
+      return res
+        .status(404)
+        .json({ message: `Bookmark with id ${id} not found` });
+    }
+    return res
+      .status(200)
+      .end();
   });
-// DELETE /:id
 
 module.exports = bookmarkRouter;
