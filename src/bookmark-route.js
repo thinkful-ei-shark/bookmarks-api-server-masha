@@ -4,6 +4,17 @@ const uuid = require('uuid').v4;
 
 const { data, findItem, validateUrl } = require('./data-store');
 
+function validateJsonRequest(req, res, next) {
+  const contentType = req.headers['content-type'];
+  if (!contentType || !contentType.includes('json')) {
+    return res
+      .status(400)
+      .json({ message: 'Request must include JSON body' });
+  }
+
+  next();
+}
+
 // GET /
 bookmarkRouter
   .route('/')
@@ -14,14 +25,8 @@ bookmarkRouter
   })
 
   // POST /
-  .post(parseJson, (req, res) => {
-    const contentType = req.headers['content-type'];
+  .post(parseJson, validateJsonRequest, (req, res) => {
     const { title, url, desc, rating } = req.body;
-    if (!contentType || !contentType.includes('json')) {
-      return res
-        .status(400)
-        .json({ message: 'Request must include JSON body' });
-    }
     if (!title) {
       return res
         .status(400)
@@ -37,7 +42,7 @@ bookmarkRouter
         .status(400)
         .json({ message: 'Rating must be a number' });
     }
-    
+
     const newBookmark = {
       id: uuid(),
       title,
@@ -53,17 +58,43 @@ bookmarkRouter
 // PATCH /:id
 bookmarkRouter
   .route('/:id')
-  .patch((req, res) => {
+  .patch(parseJson, validateJsonRequest, (req, res) => {
     const { id } = req.params;
-    const returnItem = findItem(id);
-    if (!returnItem) {
+    const { title, url, desc, rating } = req.body;
+    
+    if (!(title || desc || url || rating)) {
+      return res
+        .status(400)
+        .json({message: 'At least one valid field required'});
+    }
+
+    if (url && !validateUrl(url)){
+      return res
+        .status(400)
+        .json({message: 'URL must be valid'});
+    }
+
+    if (rating && !parseInt(rating)){
+      return res
+        .status(400)
+        .json({message: 'Rating must be a number'});
+    }
+
+    const bookmark = findItem(id);
+    if (!bookmark) {
       return res
         .status(404)
-        .json({message: `Bookmark with id ${id} not found`});
+        .json({ message: `Bookmark with id ${id} not found` });
     }
+
+    title && Object.assign(bookmark, {title});
+    url && Object.assign(bookmark, {url});
+    desc && Object.assign(bookmark, {desc});
+    rating && Object.assign(bookmark, {rating});
+    
     return res
       .status(200)
-      .json(returnItem);
+      .json(bookmark);
   });
 // DELETE /:id
 
