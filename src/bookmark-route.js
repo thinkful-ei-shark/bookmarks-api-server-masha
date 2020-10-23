@@ -51,6 +51,20 @@ bookmarkRouter
       .json(newBookmark);
   });
 // PATCH /:id
+bookmarkRouter
+  .route('/:id')
+  .patch((req, res) => {
+    const { id } = req.params;
+    const returnItem = findItem(id);
+    if (!returnItem) {
+      return res
+        .status(404)
+        .json({message: `Bookmark with id ${id} not found`});
+    }
+    return res
+      .status(200)
+      .json(returnItem);
+  });
 // DELETE /:id
 
 module.exports = bookmarkRouter;
