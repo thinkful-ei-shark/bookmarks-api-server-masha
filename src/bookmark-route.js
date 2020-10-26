@@ -59,6 +59,19 @@ bookmarkRouter
 // PATCH /:id
 bookmarkRouter
   .route('/:id')
+  .get((req, res) => {
+    const { id } = req.params;
+    const bookmark = findItem(id);
+    if (!bookmark) {
+      logger.error(`Bookmark with id ${id} not found`);
+      return res
+        .status(404)
+        .json(`Bookmark with id ${id} not found`);
+    }
+    return res
+      .status(200)
+      .json(bookmark);
+  })
   .patch(parseJson, validateJsonRequest, (req, res) => {
     const { id } = req.params;
     const { title, url, desc, rating } = req.body;
