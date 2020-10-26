@@ -3,6 +3,7 @@ const parseJson = require('express').json();
 const uuid = require('uuid').v4;
 
 const { data, findItem, validateUrl, deleteItem } = require('./data-store');
+const logger = require('./logger');
 
 function validateJsonRequest(req, res, next) {
   const contentType = req.headers['content-type'];
@@ -82,6 +83,7 @@ bookmarkRouter
 
     const bookmark = findItem(id);
     if (!bookmark) {
+      logger.error(`Bookmark with id ${id} not found`);
       return res
         .status(404)
         .json({ message: `Bookmark with id ${id} not found` });
@@ -92,6 +94,7 @@ bookmarkRouter
     desc && Object.assign(bookmark, { desc });
     rating && Object.assign(bookmark, { rating });
 
+    logger.info(`Bookmark with id ${id} updated`);
     return res
       .status(200)
       .json(bookmark);
@@ -100,10 +103,12 @@ bookmarkRouter
   .delete((req, res) => {
     const { id } = req.params;
     if (!deleteItem(id)) {
+      logger.error(`Bookmark with id ${id} not found`);
       return res
         .status(404)
         .json({ message: `Bookmark with id ${id} not found` });
     }
+    logger.info(`Bookmark with id ${id} deleted`);
     return res
       .status(200)
       .end();
