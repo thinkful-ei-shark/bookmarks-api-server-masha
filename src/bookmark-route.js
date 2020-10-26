@@ -2,7 +2,7 @@ const bookmarkRouter = require('express').Router();
 const parseJson = require('express').json();
 const uuid = require('uuid').v4;
 
-const { data, findItem, validateUrl, deleteItem } = require('./data-store');
+const { data, findItem, validateUrl, deleteItem } = require('./data-helpers');
 const logger = require('./logger');
 
 function validateJsonRequest(req, res, next) {
