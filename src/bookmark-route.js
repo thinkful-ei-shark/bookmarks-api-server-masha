@@ -2,7 +2,8 @@ const bookmarkRouter = require('express').Router();
 const parseJson = require('express').json();
 const uuid = require('uuid').v4;
 
-const { data, findItem, validateUrl, deleteItem } = require('./data-helpers');
+const BookmarkService = require('./bookmark-service');
+const { findItem, validateUrl, deleteItem } = require('./data-helpers');
 const logger = require('./logger');
 
 function validateJsonRequest(req, res, next) {
@@ -20,9 +21,13 @@ function validateJsonRequest(req, res, next) {
 bookmarkRouter
   .route('/')
   .get((req, res) => {
-    res
-      .status(200)
-      .json(data);
+    const db = req.app.get('db');
+    return BookmarkService.getAllBookmarks(db)
+      .then(data => {
+        return res
+          .status(200)
+          .json(data);
+      });
   })
 
   // POST /
