@@ -142,9 +142,6 @@ describe('Bookmark Service Object', () => {
   });
   describe('deleteBookmark()', () => {
     const bookmarkToDelete = testBookmarks[0];
-    before('seed database', () => {
-      ;
-    });
     describe('if correct id supplied', () => {
       it('bookmark is no longer in database, function returns true', () => {
         return db('bookmark').insert(bookmarkToDelete)
