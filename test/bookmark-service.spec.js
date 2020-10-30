@@ -42,15 +42,16 @@ describe('Bookmark Service Object', () => {
     });
   });
   before('ensure test db is empty', () => {
-    db('bookmark').truncate();
+    return db('bookmark').truncate();
   });
 
   after('destroy db connection', () => {
-    db.destroy();
+    return db.destroy();
   });
 
-  afterEach('clear db data', () =>
-    db('bookmark').truncate());
+  afterEach('clear db data', () =>{
+    return db('bookmark').truncate();
+  });
 
   describe('getAllBookmarks()', () => {
     describe('with seeded bookmarks', () => {
@@ -92,7 +93,7 @@ describe('Bookmark Service Object', () => {
           .then(
             () => expect.fail('promise resolved'),
             actual => {
-              expect(actual).to.equal(`bookmark with id ${bm_id} does not exist`);
+              expect(actual).to.equal(404);
             });
       });
     });

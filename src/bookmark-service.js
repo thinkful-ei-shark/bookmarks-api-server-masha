@@ -9,7 +9,8 @@ const BookmarkService = {
       .where('bm_id', bm_id)
       .first()
       .then(result =>
-        result || Promise.reject(`bookmark with id ${bm_id} does not exist`));
+        result || Promise.reject(404))
+      .catch(err => Promise.reject(err));
   },
   insertBookmark(db, newBookmark) {
     if (!newBookmark) return Promise.reject('cannot insert, no bookmark supplied');

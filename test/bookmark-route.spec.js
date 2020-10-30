@@ -71,7 +71,7 @@ describe('Bookmark Route', () => {
           .then(() => {
             return supertest(app)
               .get('/bookmarks')
-              .set({authorization})
+              .set({ authorization })
               .expect(200)
               .expect('Content-Type', /json/)
               .then(res => {
@@ -84,12 +84,41 @@ describe('Bookmark Route', () => {
       it('returns empty list', () => {
         return supertest(app)
           .get('/bookmarks')
-          .set({authorization})
+          .set({ authorization })
           .expect(200)
           .expect('Content-Type', /json/)
           .then(res => {
             expect(res.body).to.eql([]);
           });
+      });
+    });
+  });
+  describe('GET /bookmarks/:bm_id', () => {
+    describe('with valid request', () => {
+      it('returns correct bookmark', () => {
+        return db.into('bookmark').insert(testBookmarks)
+          .then(() => {
+            return supertest(app)
+              .get(`/bookmarks/${testBookmarks[0].bm_id}`)
+              .set({ authorization })
+              .expect(200);
+          });
+      });
+    });
+    describe('with nonexistent bm_id', () => {
+      it('returns 404 not found', () => {
+        return supertest(app)
+          .get('/bookmarks/1')
+          .set({authorization})
+          .expect(404);
+      });
+    });
+    describe('with invalid bm_id', () => {
+      it('returns 400 bad request', () => {
+        return supertest(app)
+          .get('/bookmarks/foo')
+          .set({authorization})
+          .expect(400);
       });
     });
   });

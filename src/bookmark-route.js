@@ -20,14 +20,15 @@ function validateJsonRequest(req, res, next) {
 // GET /
 bookmarkRouter
   .route('/')
-  .get((req, res) => {
+  .get((req, res, next) => {
     const db = req.app.get('db');
     return BookmarkService.getAllBookmarks(db)
       .then(data => {
         return res
           .status(200)
           .json(data);
-      });
+      })
+      .catch(next);
   })
 
   // POST /
@@ -61,21 +62,29 @@ bookmarkRouter
       .status(200)
       .json(newBookmark);
   });
-// PATCH /:id
+// GET, PATCH /:bm_id
 bookmarkRouter
-  .route('/:id')
-  .get((req, res) => {
-    const { id } = req.params;
-    const bookmark = findItem(id);
-    if (!bookmark) {
-      logger.error(`Bookmark with id ${id} not found`);
+  .route('/:bm_id')
+  .get((req, res, next) => {
+    const db = req.app.get('db');
+    const { bm_id } = req.params;
+    if (!parseInt(bm_id))
       return res
-        .status(404)
-        .json(`Bookmark with id ${id} not found`);
-    }
-    return res
-      .status(200)
-      .json(bookmark);
+        .status(400)
+        .json({ message: 'id must be an integer' });
+    return BookmarkService.getBookmark(db, bm_id)
+      .then((data) => {
+        return res
+          .status(200)
+          .json(data);
+      })
+      .catch(err => {
+        return err === 404
+          ? res
+            .status(err)
+            .json({ message: `bookmark with id ${bm_id} not found` })
+          : next(err);
+      });
   })
   .patch(parseJson, validateJsonRequest, (req, res) => {
     const { id } = req.params;
