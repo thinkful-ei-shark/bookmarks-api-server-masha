@@ -1,6 +1,5 @@
 const bookmarkRouter = require('express').Router();
 const parseJson = require('express').json();
-const uuid = require('uuid').v4;
 
 const BookmarkService = require('./bookmark-service');
 const { findItem, validateUrl, deleteItem } = require('./data-helpers');
