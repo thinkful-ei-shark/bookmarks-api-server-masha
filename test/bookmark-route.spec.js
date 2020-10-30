@@ -109,7 +109,7 @@ describe('Bookmark Route', () => {
       it('returns 404 not found', () => {
         return supertest(app)
           .get('/bookmarks/1')
-          .set({authorization})
+          .set({ authorization })
           .expect(404);
       });
     });
@@ -117,8 +117,33 @@ describe('Bookmark Route', () => {
       it('returns 400 bad request', () => {
         return supertest(app)
           .get('/bookmarks/foo')
-          .set({authorization})
+          .set({ authorization })
           .expect(400);
+      });
+    });
+  });
+  describe('POST /bookmarks', () => {
+    describe('valid request', () => {
+      const { bm_title, bm_url, bm_description, bm_rating } = testBookmarks[0];
+      it('returns 201, location header, and bookmark object', () => {
+        const newBookmark = { 
+          bm_title, 
+          bm_url, 
+          bm_description, 
+          bm_rating 
+        };
+        return supertest(app)
+          .post('/bookmarks')
+          .send(newBookmark)
+          .set({ authorization })
+          .expect(201)
+          .then((res) => {
+            expect(res.body.bm_title).to.eql(bm_title);
+            expect(res.body.bm_url).to.eql(bm_url);
+            expect(res.body.bm_description).to.eql(bm_description);
+            expect(res.body.bm_rating).to.eql(bm_rating);
+            // test present in db
+          });
       });
     });
   });

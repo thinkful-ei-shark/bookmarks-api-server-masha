@@ -125,7 +125,7 @@ describe('Bookmark Service Object', () => {
           .then(
             () =>
               expect.fail('promise resolved'),
-            res => expect(res).to.have.string('sql error')
+            res => expect(res).to.exist
           );
       });
     });

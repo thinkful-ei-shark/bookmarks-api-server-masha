@@ -18,7 +18,7 @@ const BookmarkService = {
       .insert(newBookmark)
       .returning('*')
       .then(rows => rows[0])
-      .catch(err => Promise.reject(`sql error: ${err.message}`));
+      .catch(err => Promise.reject(err));
   },
   updateBookmark() {
     return Promise.resolve();

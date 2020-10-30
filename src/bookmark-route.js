@@ -33,34 +33,41 @@ bookmarkRouter
 
   // POST /
   .post(parseJson, validateJsonRequest, (req, res) => {
-    const { title, url, desc, rating } = req.body;
-    if (!title) {
-      return res
-        .status(400)
-        .json({ message: 'Title required' });
-    }
-    if (!url || !validateUrl(url)) {
-      return res
-        .status(400)
-        .json({ message: 'Valid URL required' });
-    }
-    if (rating && !parseInt(rating)) {
-      return res
-        .status(400)
-        .json({ message: 'Rating must be a number' });
-    }
+    const db = res.app.get('db');
+    const { bm_title, bm_url, bm_description, bm_rating } = req.body;
+    // if (!title) {
+    //   return res
+    //     .status(400)
+    //     .json({ message: 'Title required' });
+    // }
+    // if (!url || !validateUrl(url)) {
+    //   return res
+    //     .status(400)
+    //     .json({ message: 'Valid URL required' });
+    // }
+    // if (!rating) {
+    //   return res
+    //     .status(400)
+    //     .json({ message: 'Rating required' });
+    // }
+    // if (!parseInt(rating)) {
+    //   return res
+    //     .status(400)
+    //     .json({ message: 'Rating must be a number' });
+    // }
 
     const newBookmark = {
-      id: uuid(),
-      title,
-      url,
-      desc: desc || '',
-      rating: parseInt(rating) || null
+      bm_title,
+      bm_url,
+      bm_description: bm_description || '',
+      bm_rating
     };
-    data.push(newBookmark);
-    return res
-      .status(200)
-      .json(newBookmark);
+    BookmarkService.insertBookmark(db, newBookmark)
+      .then(data => {
+        return res
+          .status(201)
+          .json(data);
+      });
   });
 // GET, PATCH /:bm_id
 bookmarkRouter
