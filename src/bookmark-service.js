@@ -28,14 +28,11 @@ const BookmarkService = {
         result || Promise.reject(404));
   },
   deleteBookmark(db, bm_id) {
-    if (!bm_id) return Promise.reject('cannot delete: bm_id required');
     return db('bookmark')
       .where('bm_id', bm_id)
       .delete()
-      .then((res) => {
-        if (res) return Promise.resolve(true);
-        else return Promise.reject(`cannot delete: bookmark with id ${bm_id} not found`);
-      });
+      .then((result) =>
+        result || Promise.reject(404));
   }
 };
 

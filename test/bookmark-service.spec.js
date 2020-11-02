@@ -136,7 +136,7 @@ describe('Bookmark Service Object', () => {
             () =>
               expect.fail('promise resolved'),
             res =>
-              expect(res).to.eql('cannot insert, no bookmark supplied')
+              expect(res).to.eql(404)
           );
       });
     });
@@ -148,8 +148,7 @@ describe('Bookmark Service Object', () => {
         return db('bookmark').insert(bookmarkToDelete)
           .then(() => {
             return BookmarkService.deleteBookmark(db, bookmarkToDelete.bm_id)
-              .then((res) => {
-                expect(res).to.be.true;
+              .then(() => {
                 return db('bookmark').select('*').where('bm_id', bookmarkToDelete.bm_id)
                   .then((res) =>
                     expect(res).to.be.empty);
@@ -162,16 +161,8 @@ describe('Bookmark Service Object', () => {
         return BookmarkService.deleteBookmark(db, 17)
           .then(
             () => expect.fail('promise resolved'),
-            res => expect(res).to.have.string('not found')
+            res => expect(res).to.eql(404)
           );
-      });
-    });
-    describe('if no id supplied', () => {
-      it('rejects promise', () => {
-        return BookmarkService.deleteBookmark(db)
-          .then(
-            () => expect.fail('promise resolved'),
-            res => expect(res).to.have.string('bm_id required'));
       });
     });
   });
