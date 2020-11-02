@@ -247,4 +247,37 @@ describe('Bookmark Route', () => {
       });
     });
   });
+  describe('DELETE /bookmarks/:bm_id', () => {
+    describe('valid id', () => {
+      it('returns 204 and deletes item from db', () =>
+      {
+        return db('bookmark')
+        .insert(testBookmarks)
+        .then(() => {
+          bm_id = testBookmarks[0].bm_id;
+          return supertest(app)
+            .delete(`/bookmarks/${bm_id}`)
+            .set({ authorization })
+            .expect(204)
+            .then(() => {
+              return db('bookmark')
+                .select('*')
+                .where('bm_id', bm_id)
+                .then(res => {
+                  expect(res).to.be.empty;
+                })
+            })
+        });
+      });
+    })
+    describe('nonexistent or invalid id', () => {
+      it('returns 404', () => {
+        const bm_id = 1;
+        return supertest(app)
+          .delete(`/bookmarks/${bm_id}`)
+          .set({ authorization })
+          .expect(404);
+      });
+    });
+  });
 });

@@ -2,7 +2,7 @@ const bookmarkRouter = require('express').Router();
 const parseJson = require('express').json();
 
 const BookmarkService = require('./bookmark-service');
-const { validateUrl, deleteItem } = require('./data-helpers');
+const { validateUrl } = require('./data-helpers');
 const logger = require('./logger');
 
 function validateJsonRequest(req, res, next) {
@@ -134,18 +134,22 @@ bookmarkRouter
           : next(err));
   })
   // DELETE /:id
-  .delete((req, res) => {
-    const { id } = req.params;
-    if (!deleteItem(id)) {
-      logger.error(`Bookmark with id ${id} not found`);
-      return res
-        .status(404)
-        .json({ message: `Bookmark with id ${id} not found` });
-    }
-    logger.info(`Bookmark with id ${id} deleted`);
-    return res
-      .status(200)
-      .end();
+  .delete((req, res, next) => {
+    const { bm_id } = req.params;
+    const db = res.app.get('db');
+    return BookmarkService.deleteBookmark(db, bm_id)
+      .then(() => {
+        return res
+          .status(204)
+          .send();
+      })
+      .catch(err =>
+        err === 404
+          ? res
+            .status(404)
+            .json({ message: `bookmark with id ${bm_id} not found` })
+          : next(err)
+      );
   });
 
 module.exports = bookmarkRouter;
