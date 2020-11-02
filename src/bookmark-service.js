@@ -13,7 +13,6 @@ const BookmarkService = {
       .catch(err => Promise.reject(err));
   },
   insertBookmark(db, newBookmark) {
-    if (!newBookmark) return Promise.reject('cannot insert, no bookmark supplied');
     return db('bookmark')
       .insert(newBookmark)
       .returning('*')

@@ -129,17 +129,6 @@ describe('Bookmark Service Object', () => {
           );
       });
     });
-    describe('no bookmark passed', () => {
-      it('rejects the promise', () => {
-        return BookmarkService.insertBookmark(db)
-          .then(
-            () =>
-              expect.fail('promise resolved'),
-            res =>
-              expect(res).to.eql(404)
-          );
-      });
-    });
   });
   describe('deleteBookmark()', () => {
     const bookmarkToDelete = testBookmarks[0];
