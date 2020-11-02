@@ -30,7 +30,7 @@ function serializeBookmark(bookmark) {
 }
 
 function error(res, status, message) {
-  const error = {error: {message}};
+  const error = { error: { message } };
   logger.error(error);
   return res
     .status(status)
@@ -63,13 +63,13 @@ bookmarkRouter
     }
     const { bm_title, bm_url, bm_description, bm_rating } = req.body;
     if (!bm_title || !bm_url || !bm_rating) {
-      return error(res, 400, 'Title, url, and rating are required' );
+      return error(res, 400, 'Title, url, and rating are required');
     }
     if (!validateUrl(bm_url)) {
-      return error(res, 400, 'Invalid URL' );
+      return error(res, 400, 'Invalid URL');
     }
     if (!parseInt(bm_rating)) {
-      return error(res, 400, 'Rating must be a number' );
+      return error(res, 400, 'Rating must be a number');
     }
     const newBookmark = {
       bm_title,
@@ -90,7 +90,7 @@ bookmarkRouter
   .get((req, res, next) => {
     const db = req.app.get('db');
     const { bm_id } = req.params;
-    if (!Number(bm_id))
+    if (!parseInt(bm_id))
       return error(res, 400, 'id must be an integer');
     return BookmarkService.getBookmark(db, bm_id)
       .then((data) => {
@@ -107,6 +107,9 @@ bookmarkRouter
   .patch(parseJson, validateJsonRequest, (req, res, next) => {
     const db = res.app.get('db');
     const { bm_id } = req.params;
+    if (!parseInt(bm_id))
+      return error(res, 400, 'id must be an integer');
+
     const { bm_title, bm_url, bm_description, bm_rating } = req.body;
 
     if (!(bm_title || bm_description || bm_url || bm_rating)) {
@@ -141,6 +144,8 @@ bookmarkRouter
   // DELETE /:id
   .delete((req, res, next) => {
     const { bm_id } = req.params;
+    if (!parseInt(bm_id))
+      return error(res, 400, 'id must be an integer');
     const db = res.app.get('db');
     return BookmarkService.deleteBookmark(db, bm_id)
       .then(() => {

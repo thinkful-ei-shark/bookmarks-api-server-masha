@@ -212,7 +212,7 @@ describe('Bookmark Route', () => {
           })
       })
     })
-    describe('with invalid id', () => {
+    describe('with no such id', () => {
       it('returns 404 not found', () => {
         const bm_id = 1;
         const updatedFields = { bm_description: 'foo' };
@@ -223,12 +223,21 @@ describe('Bookmark Route', () => {
           .expect(404);
       })
     })
-    describe('with nonexistent id', () => {
+    describe('with id not supplied', () => {
       it('returns 404 not found', () => {
         return supertest(app)
           .patch('/bookmarks')
           .set({ authorization })
           .expect(404);
+      })
+    })
+    describe('with invalid id', () => {
+      it('returns 400 bad request', () => {
+        return supertest(app)
+        .patch('/bookmarks/foo')
+        .set({ authorization })
+        .send({bm_rating: 1})
+        .expect(400);
       })
     })
     describe('with valid id but invalid fields', () => {
@@ -270,7 +279,7 @@ describe('Bookmark Route', () => {
         });
       });
     })
-    describe('nonexistent or invalid id', () => {
+    describe('no such id', () => {
       it('returns 404', () => {
         const bm_id = 1;
         return supertest(app)
@@ -279,5 +288,21 @@ describe('Bookmark Route', () => {
           .expect(404);
       });
     });
+    describe('invalid id', () => {
+      it('returns 400 bad request', () => {
+        return supertest(app)
+        .delete('/bookmarks/foo')
+        .set({ authorization })
+        .expect(400);
+      });
+    });
+    describe('id not provided', () => {
+      it('returns 404 not found', () => {
+        return supertest(app)
+          .delete('/bookmarks')
+          .set({ authorization })
+          .expect(404);
+      })
+    })
   });
 });
