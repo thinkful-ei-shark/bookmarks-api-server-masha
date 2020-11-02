@@ -3,7 +3,6 @@ const parseJson = require('express').json();
 
 const xss = require('xss');
 const BookmarkService = require('./bookmark-service');
-const { validateUrl } = require('./data-helpers');
 const logger = require('./logger');
 
 function validateJsonRequest(req, res, next) {
@@ -13,8 +12,11 @@ function validateJsonRequest(req, res, next) {
       .status(400)
       .json({ message: 'Request must include JSON body' });
   }
-
   next();
+}
+
+function validateUrl(string) {
+  return /^(http|https):\/\/[^ "]+(\.)[^ "]+$/.test(string);
 }
 
 function serializeBookmark(bookmark) {
