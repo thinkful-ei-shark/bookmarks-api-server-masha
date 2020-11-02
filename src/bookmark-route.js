@@ -39,7 +39,7 @@ bookmarkRouter
         .json({ message: 'no bookmark object received' });
     }
     const { bm_title, bm_url, bm_description, bm_rating } = req.body;
-    if (!bm_title || !bm_url || !bm_rating ) {
+    if (!bm_title || !bm_url || !bm_rating) {
       return res
         .status(400)
         .json({ message: 'Title, url, and rating are required' });
@@ -83,15 +83,15 @@ bookmarkRouter
           .status(200)
           .json(data);
       })
-      .catch(err => {
-        return err === 404
+      .catch(err =>
+        err === 404
           ? res
             .status(err)
             .json({ message: `bookmark with id ${bm_id} not found` })
-          : next(err);
-      });
+          : next(err)
+      );
   })
-  .patch(parseJson, validateJsonRequest, (req, res) => {
+  .patch(parseJson, validateJsonRequest, (req, res, next) => {
     const db = res.app.get('db');
     const { bm_id } = req.params;
     const { bm_title, bm_url, bm_description, bm_rating } = req.body;
@@ -114,7 +114,7 @@ bookmarkRouter
         .json({ message: 'Rating must be a number' });
     }
     const updatedFields = {};
-    
+
     bm_title && Object.assign(updatedFields, { bm_title });
     bm_url && Object.assign(updatedFields, { bm_url });
     bm_description && Object.assign(updatedFields, { bm_description });
@@ -125,7 +125,13 @@ bookmarkRouter
         return res
           .status(204)
           .send();
-      });
+      })
+      .catch(err =>
+        err === 404
+          ? res
+            .status(404)
+            .json({ message: `bookmark with id ${bm_id} not found` })
+          : next(err));
   })
   // DELETE /:id
   .delete((req, res) => {

@@ -213,7 +213,15 @@ describe('Bookmark Route', () => {
       })
     })
     describe('with invalid id', () => {
-
+      it('returns 404 not found', () => {
+        const bm_id = 1;
+        const updatedFields = { bm_description: 'foo' };
+        return supertest(app)
+          .patch(`/bookmarks/${bm_id}`)
+          .send(updatedFields)
+          .set({ authorization })
+          .expect(404);
+      })
     })
     describe('with nonexistent id', () => {
 
