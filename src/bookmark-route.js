@@ -26,8 +26,20 @@ function serializeBookmark(bookmark) {
     bm_url: bookmark.bm_url,
     bm_description: xss(bookmark.bm_description),
     bm_rating: Number(bookmark.bm_rating)
-  }
-};
+  };
+}
+
+function error(res, status, message) {
+  const error = {error: {message}};
+  logger.error(error);
+  return res
+    .status(status)
+    .json(error);
+}
+
+function notFound(bm_id) {
+  return `bookmark with id ${bm_id} not found`;
+}
 
 // GET /
 bookmarkRouter
@@ -47,25 +59,17 @@ bookmarkRouter
   .post(parseJson, validateJsonRequest, (req, res) => {
     const db = res.app.get('db');
     if (Object.keys(req.body).length === 0) {
-      return res
-        .status(400)
-        .json({ message: 'no bookmark object received' });
+      return error(res, 400, 'no bookmark object received');
     }
     const { bm_title, bm_url, bm_description, bm_rating } = req.body;
     if (!bm_title || !bm_url || !bm_rating) {
-      return res
-        .status(400)
-        .json({ message: 'Title, url, and rating are required' });
+      return error(res, 400, 'Title, url, and rating are required' );
     }
     if (!validateUrl(bm_url)) {
-      return res
-        .status(400)
-        .json({ message: 'Invalid URL' });
+      return error(res, 400, 'Invalid URL' );
     }
     if (!parseInt(bm_rating)) {
-      return res
-        .status(400)
-        .json({ message: 'Rating must be a number' });
+      return error(res, 400, 'Rating must be a number' );
     }
     const newBookmark = {
       bm_title,
@@ -86,10 +90,8 @@ bookmarkRouter
   .get((req, res, next) => {
     const db = req.app.get('db');
     const { bm_id } = req.params;
-    if (!parseInt(bm_id))
-      return res
-        .status(400)
-        .json({ message: 'id must be an integer' });
+    if (!Number(bm_id))
+      return error(res, 400, 'id must be an integer');
     return BookmarkService.getBookmark(db, bm_id)
       .then((data) => {
         return res
@@ -98,9 +100,7 @@ bookmarkRouter
       })
       .catch(err =>
         err === 404
-          ? res
-            .status(err)
-            .json({ message: `bookmark with id ${bm_id} not found` })
+          ? error(res, 404, notFound(bm_id))
           : next(err)
       );
   })
@@ -110,21 +110,15 @@ bookmarkRouter
     const { bm_title, bm_url, bm_description, bm_rating } = req.body;
 
     if (!(bm_title || bm_description || bm_url || bm_rating)) {
-      return res
-        .status(400)
-        .json({ message: 'At least one valid field required' });
+      return error(res, 400, 'At least one valid field required');
     }
 
     if (bm_url && !validateUrl(bm_url)) {
-      return res
-        .status(400)
-        .json({ message: 'URL must be valid' });
+      return error(res, 400, 'URL must be valid');
     }
 
-    if (bm_rating && !parseInt(bm_rating)) {
-      return res
-        .status(400)
-        .json({ message: 'Rating must be a number' });
+    if (bm_rating && !Number(bm_rating)) {
+      return error(res, 400, 'Rating must be a number');
     }
     const updatedFields = {};
 
@@ -141,9 +135,7 @@ bookmarkRouter
       })
       .catch(err =>
         err === 404
-          ? res
-            .status(404)
-            .json({ message: `bookmark with id ${bm_id} not found` })
+          ? error(res, 404, notFound(bm_id))
           : next(err));
   })
   // DELETE /:id
@@ -158,9 +150,7 @@ bookmarkRouter
       })
       .catch(err =>
         err === 404
-          ? res
-            .status(404)
-            .json({ message: `bookmark with id ${bm_id} not found` })
+          ? error(res, 404, notFound(bm_id))
           : next(err)
       );
   });
