@@ -34,26 +34,26 @@ bookmarkRouter
   .post(parseJson, validateJsonRequest, (req, res) => {
     const db = res.app.get('db');
     const { bm_title, bm_url, bm_description, bm_rating } = req.body;
-    // if (!title) {
-    //   return res
-    //     .status(400)
-    //     .json({ message: 'Title required' });
-    // }
-    // if (!url || !validateUrl(url)) {
-    //   return res
-    //     .status(400)
-    //     .json({ message: 'Valid URL required' });
-    // }
-    // if (!rating) {
-    //   return res
-    //     .status(400)
-    //     .json({ message: 'Rating required' });
-    // }
-    // if (!parseInt(rating)) {
-    //   return res
-    //     .status(400)
-    //     .json({ message: 'Rating must be a number' });
-    // }
+    if (!title) {
+      return res
+        .status(400)
+        .json({ message: 'Title required' });
+    }
+    if (!url || !validateUrl(url)) {
+      return res
+        .status(400)
+        .json({ message: 'Valid URL required' });
+    }
+    if (!rating) {
+      return res
+        .status(400)
+        .json({ message: 'Rating required' });
+    }
+    if (!parseInt(rating)) {
+      return res
+        .status(400)
+        .json({ message: 'Rating must be a number' });
+    }
 
     const newBookmark = {
       bm_title,

@@ -125,12 +125,12 @@ describe('Bookmark Route', () => {
   describe('POST /bookmarks', () => {
     describe('valid request', () => {
       const { bm_title, bm_url, bm_description, bm_rating } = testBookmarks[0];
-      it('returns 201, location header, and bookmark object', () => {
-        const newBookmark = { 
-          bm_title, 
-          bm_url, 
-          bm_description, 
-          bm_rating 
+      it('inserts into db, returns 201, location header, and bookmark object', () => {
+        const newBookmark = {
+          bm_title,
+          bm_url,
+          bm_description,
+          bm_rating
         };
         return supertest(app)
           .post('/bookmarks')
@@ -138,11 +138,15 @@ describe('Bookmark Route', () => {
           .set({ authorization })
           .expect(201)
           .then((res) => {
-            expect(res.body.bm_title).to.eql(bm_title);
-            expect(res.body.bm_url).to.eql(bm_url);
-            expect(res.body.bm_description).to.eql(bm_description);
-            expect(res.body.bm_rating).to.eql(bm_rating);
-            // test present in db
+            const bookmark = res.body;
+            expect(bookmark).to.include(newBookmark);
+            return db('bookmark')
+              .count('*')
+              .where({ ...bookmark })
+              .then(res => {
+                console.log(res[0].count)
+                expect(parseInt(res[0].count)).to.be.at.least(1);
+              });
           });
       });
     });
