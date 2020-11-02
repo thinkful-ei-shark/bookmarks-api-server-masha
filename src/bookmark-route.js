@@ -1,6 +1,7 @@
 const bookmarkRouter = require('express').Router();
 const parseJson = require('express').json();
 
+const xss = require('xss');
 const BookmarkService = require('./bookmark-service');
 const { validateUrl } = require('./data-helpers');
 const logger = require('./logger');
@@ -16,6 +17,16 @@ function validateJsonRequest(req, res, next) {
   next();
 }
 
+function serializeBookmark(bookmark) {
+  return {
+    bm_id: bookmark.bm_id,
+    bm_title: xss(bookmark.bm_title),
+    bm_url: bookmark.bm_url,
+    bm_description: xss(bookmark.bm_description),
+    bm_rating: Number(bookmark.bm_rating)
+  }
+};
+
 // GET /
 bookmarkRouter
   .route('/')
@@ -25,7 +36,7 @@ bookmarkRouter
       .then(data => {
         return res
           .status(200)
-          .json(data);
+          .json(data.map(bm => serializeBookmark(bm)));
       })
       .catch(next);
   })
@@ -81,7 +92,7 @@ bookmarkRouter
       .then((data) => {
         return res
           .status(200)
-          .json(data);
+          .json(serializeBookmark(data));
       })
       .catch(err =>
         err === 404
