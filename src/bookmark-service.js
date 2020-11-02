@@ -24,9 +24,8 @@ const BookmarkService = {
     return db('bookmark')
       .where('bm_id', bm_id)
       .update(updatedFields)
-      .then(() => {
-        return Promise.resolve(true);
-      });
+      .then((result) => 
+        result || Promise.reject(404));
   },
   deleteBookmark(db, bm_id) {
     if (!bm_id) return Promise.reject('cannot delete: bm_id required');

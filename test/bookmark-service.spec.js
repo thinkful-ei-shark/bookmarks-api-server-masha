@@ -49,7 +49,7 @@ describe('Bookmark Service Object', () => {
     return db.destroy();
   });
 
-  afterEach('clear db data', () =>{
+  afterEach('clear db data', () => {
     return db('bookmark').truncate();
   });
 
@@ -93,7 +93,7 @@ describe('Bookmark Service Object', () => {
           .then(
             () => expect.fail('promise resolved'),
             actual => {
-              expect(actual).to.equal(404);
+              expect(actual).to.eql(404);
             });
       });
     });
@@ -182,10 +182,9 @@ describe('Bookmark Service Object', () => {
           .insert(testBookmarks)
           .then(() => {
             const bm_id = 1;
-            const updatedFields = { bm_rating: 5};
+            const updatedFields = { bm_rating: 5 };
             return BookmarkService.updateBookmark(db, bm_id, updatedFields)
-              .then(res => {
-                expect(res).to.be.true;
+              .then(() => {
                 return db('bookmark')
                   .select('*')
                   .where('bm_id', bm_id)
@@ -195,6 +194,17 @@ describe('Bookmark Service Object', () => {
                   });
               });
           });
+      });
+    });
+    describe('invalid id', () => {
+      it('returns 404', () => {
+        const bm_id = 1;
+        const updatedFields = { bm_description: 'foo ' };
+        return BookmarkService.updateBookmark(db, bm_id, updatedFields)
+          .then(
+            () => expect.fail('promise resolved'),
+            err =>
+              expect(err).to.eql(404));
       });
     });
   });
