@@ -175,4 +175,27 @@ describe('Bookmark Service Object', () => {
       });
     });
   });
+  describe('updateBookmark()', () => {
+    describe('valid id and fields', () => {
+      it('updated object in database, function returns true', () => {
+        return db('bookmark')
+          .insert(testBookmarks)
+          .then(() => {
+            const bm_id = 1;
+            const updatedFields = { bm_rating: 5};
+            return BookmarkService.updateBookmark(db, bm_id, updatedFields)
+              .then(res => {
+                expect(res).to.be.true;
+                return db('bookmark')
+                  .select('*')
+                  .where('bm_id', bm_id)
+                  .first()
+                  .then((res) => {
+                    expect(res).to.include(updatedFields);
+                  });
+              });
+          });
+      });
+    });
+  });
 });

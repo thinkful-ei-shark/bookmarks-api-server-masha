@@ -20,8 +20,13 @@ const BookmarkService = {
       .then(rows => rows[0])
       .catch(err => Promise.reject(err));
   },
-  updateBookmark() {
-    return Promise.resolve();
+  updateBookmark(db, bm_id, updatedFields) {
+    return db('bookmark')
+      .where('bm_id', bm_id)
+      .update(updatedFields)
+      .then(() => {
+        return Promise.resolve(true);
+      });
   },
   deleteBookmark(db, bm_id) {
     if (!bm_id) return Promise.reject('cannot delete: bm_id required');
