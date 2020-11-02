@@ -57,11 +57,11 @@ describe('Bookmark Route', () => {
     return db('bookmark').truncate();
   });
 
-  describe('GET /bookmarks', () => {
+  describe('GET /api/bookmarks', () => {
     describe('without authorization', () => {
       it('returns 401', () => {
         return supertest(app)
-          .get('/bookmarks')
+          .get('/api/bookmarks')
           .expect(401);
       });
     });
@@ -70,7 +70,7 @@ describe('Bookmark Route', () => {
         return db.into('bookmark').insert(testBookmarks)
           .then(() => {
             return supertest(app)
-              .get('/bookmarks')
+              .get('/api/bookmarks')
               .set({ authorization })
               .expect(200)
               .expect('Content-Type', /json/)
@@ -83,7 +83,7 @@ describe('Bookmark Route', () => {
     describe('with no bookmarks', () => {
       it('returns empty list', () => {
         return supertest(app)
-          .get('/bookmarks')
+          .get('/api/bookmarks')
           .set({ authorization })
           .expect(200)
           .expect('Content-Type', /json/)
@@ -93,13 +93,13 @@ describe('Bookmark Route', () => {
       });
     });
   });
-  describe('GET /bookmarks/:bm_id', () => {
+  describe('GET /api/bookmarks/:bm_id', () => {
     describe('with valid request', () => {
       it('returns correct bookmark', () => {
         return db.into('bookmark').insert(testBookmarks)
           .then(() => {
             return supertest(app)
-              .get(`/bookmarks/${testBookmarks[0].bm_id}`)
+              .get(`/api/bookmarks/${testBookmarks[0].bm_id}`)
               .set({ authorization })
               .expect(200);
           });
@@ -108,7 +108,7 @@ describe('Bookmark Route', () => {
     describe('with nonexistent bm_id', () => {
       it('returns 404 not found', () => {
         return supertest(app)
-          .get('/bookmarks/1')
+          .get('/api/bookmarks/1')
           .set({ authorization })
           .expect(404);
       });
@@ -116,13 +116,13 @@ describe('Bookmark Route', () => {
     describe('with invalid bm_id', () => {
       it('returns 400 bad request', () => {
         return supertest(app)
-          .get('/bookmarks/foo')
+          .get('/api/bookmarks/foo')
           .set({ authorization })
           .expect(400);
       });
     });
   });
-  describe('POST /bookmarks', () => {
+  describe('POST /api/bookmarks', () => {
     describe('valid request', () => {
       const { bm_title, bm_url, bm_description, bm_rating } = testBookmarks[0];
       it('inserts into db, returns 201, location header, and bookmark object', () => {
@@ -133,7 +133,7 @@ describe('Bookmark Route', () => {
           bm_rating
         };
         return supertest(app)
-          .post('/bookmarks')
+          .post('/api/bookmarks')
           .send(newBookmark)
           .set({ authorization })
           .expect(201)
@@ -153,7 +153,7 @@ describe('Bookmark Route', () => {
     describe('empty object sent', () => {
       it('returns 400 bad request', () => {
         return supertest(app)
-          .post('/bookmarks')
+          .post('/api/bookmarks')
           .send({})
           .set({ authorization })
           .expect(400);
@@ -162,7 +162,7 @@ describe('Bookmark Route', () => {
     describe('required fields missing', () => {
       it('returns 400 bad request', () => {
         return supertest(app)
-          .post('/bookmarks')
+          .post('/api/bookmarks')
           .send({ foo: 'bar' })
           .set({ authorization })
           .expect(400);
@@ -171,7 +171,7 @@ describe('Bookmark Route', () => {
     describe('rating not a number', () => {
       it('returns 400 bad request', () => {
         return supertest(app)
-          .post('/bookmarks')
+          .post('/api/bookmarks')
           .send({ ...testBookmarks[0], bm_rating: 'foo' })
           .set({ authorization })
           .expect(400);
@@ -180,14 +180,14 @@ describe('Bookmark Route', () => {
     describe('invalid URL', () => {
       it('returns 400 bad request', () => {
         return supertest(app)
-          .post('/bookmarks')
+          .post('/api/bookmarks')
           .send({ ...testBookmarks[0], bm_url: 'bar' })
           .set({ authorization })
           .expect(400);
       })
     })
   });
-  describe('PATCH /bookmarks/:bm_id', () => {
+  describe('PATCH /api/bookmarks/:bm_id', () => {
     describe('with valid id and fields', () => {
       it('updates db and returns 204', () => {
         const bm_id = 1;
@@ -196,7 +196,7 @@ describe('Bookmark Route', () => {
           .insert(testBookmarks)
           .then(() => {
             return supertest(app)
-              .patch(`/bookmarks/${bm_id}`)
+              .patch(`/api/bookmarks/${bm_id}`)
               .send(updatedFields)
               .set({ authorization })
               .expect(204)
@@ -217,7 +217,7 @@ describe('Bookmark Route', () => {
         const bm_id = 1;
         const updatedFields = { bm_description: 'foo' };
         return supertest(app)
-          .patch(`/bookmarks/${bm_id}`)
+          .patch(`/api/bookmarks/${bm_id}`)
           .send(updatedFields)
           .set({ authorization })
           .expect(404);
@@ -226,7 +226,7 @@ describe('Bookmark Route', () => {
     describe('with id not supplied', () => {
       it('returns 404 not found', () => {
         return supertest(app)
-          .patch('/bookmarks')
+          .patch('/api/bookmarks')
           .set({ authorization })
           .expect(404);
       })
@@ -234,7 +234,7 @@ describe('Bookmark Route', () => {
     describe('with invalid id', () => {
       it('returns 400 bad request', () => {
         return supertest(app)
-        .patch('/bookmarks/foo')
+        .patch('/api/bookmarks/foo')
         .set({ authorization })
         .send({bm_rating: 1})
         .expect(400);
@@ -248,7 +248,7 @@ describe('Bookmark Route', () => {
             const bm_id = 1;
             const updatedFields = { foo: 'bar' }
             return supertest(app)
-              .patch(`/bookmarks/${bm_id}`)
+              .patch(`/api/bookmarks/${bm_id}`)
               .set({ authorization })
               .send(updatedFields)
               .expect(400);
@@ -256,7 +256,7 @@ describe('Bookmark Route', () => {
       });
     });
   });
-  describe('DELETE /bookmarks/:bm_id', () => {
+  describe('DELETE /api/bookmarks/:bm_id', () => {
     describe('valid id', () => {
       it('returns 204 and deletes item from db', () =>
       {
@@ -265,7 +265,7 @@ describe('Bookmark Route', () => {
         .then(() => {
           bm_id = testBookmarks[0].bm_id;
           return supertest(app)
-            .delete(`/bookmarks/${bm_id}`)
+            .delete(`/api/bookmarks/${bm_id}`)
             .set({ authorization })
             .expect(204)
             .then(() => {
@@ -283,7 +283,7 @@ describe('Bookmark Route', () => {
       it('returns 404', () => {
         const bm_id = 1;
         return supertest(app)
-          .delete(`/bookmarks/${bm_id}`)
+          .delete(`/api/bookmarks/${bm_id}`)
           .set({ authorization })
           .expect(404);
       });
@@ -291,7 +291,7 @@ describe('Bookmark Route', () => {
     describe('invalid id', () => {
       it('returns 400 bad request', () => {
         return supertest(app)
-        .delete('/bookmarks/foo')
+        .delete('/api/bookmarks/foo')
         .set({ authorization })
         .expect(400);
       });
@@ -299,7 +299,7 @@ describe('Bookmark Route', () => {
     describe('id not provided', () => {
       it('returns 404 not found', () => {
         return supertest(app)
-          .delete('/bookmarks')
+          .delete('/api/bookmarks')
           .set({ authorization })
           .expect(404);
       })
