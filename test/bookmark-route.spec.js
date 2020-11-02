@@ -224,10 +224,27 @@ describe('Bookmark Route', () => {
       })
     })
     describe('with nonexistent id', () => {
-
+      it('returns 404 not found', () => {
+        return supertest(app)
+          .patch('/bookmarks')
+          .set({ authorization })
+          .expect(404);
+      })
     })
     describe('with valid id but invalid fields', () => {
-
-    })
-  })
+      it('returns 400 bad request', () => {
+        return db('bookmark')
+          .insert(testBookmarks)
+          .then(() => {
+            const bm_id = 1;
+            const updatedFields = { foo: 'bar' }
+            return supertest(app)
+              .patch(`/bookmarks/${bm_id}`)
+              .set({ authorization })
+              .send(updatedFields)
+              .expect(400);
+          });
+      });
+    });
+  });
 });
