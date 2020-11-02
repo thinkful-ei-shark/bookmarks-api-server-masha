@@ -17,9 +17,9 @@ const morganOption = (NODE_ENV === 'production')
 const app = express();
 
 app.use(morgan(morganOption));
+app.use(cors());
 app.use(validateBearerToken);
 app.use(helmet());
-app.use(cors());
 
 app.use('/api/bookmarks', bookmarkRoute);
 
