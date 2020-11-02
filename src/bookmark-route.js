@@ -2,7 +2,7 @@ const bookmarkRouter = require('express').Router();
 const parseJson = require('express').json();
 
 const BookmarkService = require('./bookmark-service');
-const { findItem, validateUrl, deleteItem } = require('./data-helpers');
+const { validateUrl, deleteItem } = require('./data-helpers');
 const logger = require('./logger');
 
 function validateJsonRequest(req, res, next) {
@@ -92,44 +92,40 @@ bookmarkRouter
       });
   })
   .patch(parseJson, validateJsonRequest, (req, res) => {
-    const { id } = req.params;
-    const { title, url, desc, rating } = req.body;
+    const db = res.app.get('db');
+    const { bm_id } = req.params;
+    const { bm_title, bm_url, bm_description, bm_rating } = req.body;
 
-    if (!(title || desc || url || rating)) {
+    if (!(bm_title || bm_description || bm_url || bm_rating)) {
       return res
         .status(400)
         .json({ message: 'At least one valid field required' });
     }
 
-    if (url && !validateUrl(url)) {
+    if (bm_url && !validateUrl(bm_url)) {
       return res
         .status(400)
         .json({ message: 'URL must be valid' });
     }
 
-    if (rating && !parseInt(rating)) {
+    if (bm_rating && !parseInt(bm_rating)) {
       return res
         .status(400)
         .json({ message: 'Rating must be a number' });
     }
+    const updatedFields = {};
+    
+    bm_title && Object.assign(updatedFields, { bm_title });
+    bm_url && Object.assign(updatedFields, { bm_url });
+    bm_description && Object.assign(updatedFields, { bm_description });
+    bm_rating && Object.assign(updatedFields, { bm_rating });
 
-    const bookmark = findItem(id);
-    if (!bookmark) {
-      logger.error(`Bookmark with id ${id} not found`);
-      return res
-        .status(404)
-        .json({ message: `Bookmark with id ${id} not found` });
-    }
-
-    title && Object.assign(bookmark, { title });
-    url && Object.assign(bookmark, { url });
-    desc && Object.assign(bookmark, { desc });
-    rating && Object.assign(bookmark, { rating });
-
-    logger.info(`Bookmark with id ${id} updated`);
-    return res
-      .status(200)
-      .json(bookmark);
+    return BookmarkService.updateBookmark(db, bm_id, updatedFields)
+      .then(() => {
+        return res
+          .status(204)
+          .send();
+      });
   })
   // DELETE /:id
   .delete((req, res) => {

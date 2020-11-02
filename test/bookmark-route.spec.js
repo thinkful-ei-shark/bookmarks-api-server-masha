@@ -187,4 +187,39 @@ describe('Bookmark Route', () => {
       })
     })
   });
+  describe('PATCH /bookmarks/:bm_id', () => {
+    describe('with valid id and fields', () => {
+      it('updates db and returns 204', () => {
+        const bm_id = 1;
+        const updatedFields = { bm_rating: 5 };
+        return db('bookmark')
+          .insert(testBookmarks)
+          .then(() => {
+            return supertest(app)
+              .patch(`/bookmarks/${bm_id}`)
+              .send(updatedFields)
+              .set({ authorization })
+              .expect(204)
+              .then(() => {
+                return db('bookmark')
+                  .select('*')
+                  .where('bm_id', bm_id)
+                  .first()
+                  .then(res => {
+                    expect(res).to.include(updatedFields)
+                  })
+              })
+          })
+      })
+    })
+    describe('with invalid id', () => {
+
+    })
+    describe('with nonexistent id', () => {
+
+    })
+    describe('with valid id but invalid fields', () => {
+
+    })
+  })
 });
