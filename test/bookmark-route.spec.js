@@ -143,12 +143,48 @@ describe('Bookmark Route', () => {
             return db('bookmark')
               .count('*')
               .where({ ...bookmark })
+              .first()
               .then(res => {
-                console.log(res[0].count)
-                expect(parseInt(res[0].count)).to.be.at.least(1);
+                expect(parseInt(res.count)).to.eql(1);
               });
           });
       });
     });
+    describe('empty object sent', () => {
+      it('returns 400 bad request', () => {
+        return supertest(app)
+          .post('/bookmarks')
+          .send({})
+          .set({ authorization })
+          .expect(400);
+      });
+    });
+    describe('required fields missing', () => {
+      it('returns 400 bad request', () => {
+        return supertest(app)
+          .post('/bookmarks')
+          .send({ foo: 'bar' })
+          .set({ authorization })
+          .expect(400);
+      });
+    });
+    describe('rating not a number', () => {
+      it('returns 400 bad request', () => {
+        return supertest(app)
+          .post('/bookmarks')
+          .send({ ...testBookmarks[0], bm_rating: 'foo' })
+          .set({ authorization })
+          .expect(400);
+      });
+    });
+    describe('invalid URL', () => {
+      it('returns 400 bad request', () => {
+        return supertest(app)
+          .post('/bookmarks')
+          .send({ ...testBookmarks[0], bm_url: 'bar' })
+          .set({ authorization })
+          .expect(400);
+      })
+    })
   });
 });
